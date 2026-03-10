@@ -1,20 +1,52 @@
+import { PlayIcon } from "lucide-react";
+import { useState } from "react";
 import * as Tone from "tone";
+import { SynthSheet, LateralPiano } from "~/components";
 
 export function Welcome() {
-  const testClick = () => {
-    const synth = new Tone.Synth().toDestination();
+  const notes = [
+    { note: "B4" },
+    { note: "A#4" },
+    { note: "A4" },
+    { note: "G#4" },
+    { note: "G4" },
+    { note: "F#4" },
+    { note: "F4" },
+    { note: "E4" },
+    { note: "D#4" },
+    { note: "D4" },
+    { note: "C#4" },
+    { note: "C4" },
+  ];
 
-    synth.triggerAttackRelease("C4", "8n");
+  const [playNotes, setPlayNotes] = useState([]);
+
+  const testClick = (note: string) => {
+    const synth = new Tone.Synth().toDestination();
+    synth.triggerAttackRelease(note, "8n");
+  };
+
+  const onClickPlayNotes = () => {
+    const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+    synth.triggerAttackRelease(playNotes, "8n");
   };
 
   return (
-    <main className="flex items-center justify-center pt-16 pb-4">
-      <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
-        <button
+    <main className="flex flex-1 items-center bg-blue-950">
+      <div className="flex flex-row items-start">
+        <LateralPiano notes={notes} onClick={testClick} />
+        <SynthSheet
+          notes={notes}
+          playNotes={playNotes}
+          setPlayNotes={setPlayNotes}
           onClick={testClick}
-          className="bg-cyan-200 text-blue-950 p-2 rounded-2xl cursor-pointer"
+        />
+        <button
+          className="ml-2 inline-flex items-center gap-2 bg-cyan-200 rounded-2xl cursor-pointer p-2"
+          onClick={onClickPlayNotes}
         >
-          Play Me!
+          <PlayIcon />
+          <p>Play</p>
         </button>
       </div>
     </main>

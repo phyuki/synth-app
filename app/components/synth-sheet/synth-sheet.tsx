@@ -2,32 +2,38 @@ import type { NoteItem } from "~/types";
 
 type SynthSheetProps = {
   notes: NoteItem[];
-  onClick: (note: string, sharp?: boolean) => void;
   playNotes: any;
   setPlayNotes: any;
 };
 
 export function SynthSheet({
   notes,
-  onClick,
   playNotes,
   setPlayNotes,
 }: SynthSheetProps) {
   const whiteNotes = notes.filter((item) => !item.note.includes("#"));
 
-  const onClickNote = (note: string) => {
-    setPlayNotes((prev: string[]) => {
-      if (prev.includes(note)) {
-        return prev.filter((n) => n !== note);
+  const onClickNote = (note: string, indexCol: number) => {
+    setPlayNotes((prev: string[][]) => {
+      if (prev[indexCol]?.includes(note)) {
+        return prev.map((col, i) =>
+          i === indexCol ? col.filter((n) => n !== note) : col,
+        );
       }
-      return [...prev, note];
+      if (prev[indexCol]?.length) {
+        return prev.map((col, i) => (i === indexCol ? [...col, note] : col));
+      } else {
+        const temp = [...prev];
+        temp[indexCol] = [note];
+        return temp;
+      }
     });
   };
 
-  const renderItem = (note: string, i: number) => {
+  const renderItem = (note: string, indexRow: number, indexCol: number) => {
     const sharp = note.includes("#");
     let color = sharp ? "bg-gray-200" : "bg-white";
-    const existsNote = playNotes.includes(note);
+    const existsNote = playNotes[indexCol]?.includes(note);
     if (existsNote) {
       color = "bg-cyan-400";
     }
@@ -37,17 +43,26 @@ export function SynthSheet({
 
     return (
       <button
-        key={color + "-" + i}
+        key={color + "-" + indexCol + "-" + indexRow}
         style={{ height: `${height}rem` }}
         className={`w-32 ${height} ${color} border border-black ${activeColor}`}
-        onClick={() => onClickNote(note)}
+        onClick={() => onClickNote(note, indexCol)}
       />
     );
   };
 
-  return (
-    <div className="flex flex-1 flex-col">
-      {notes.flatMap(({ note }, i) => renderItem(note, i))}
-    </div>
-  );
+  const renderSynthSheet = () => {
+    let sheet: any = [];
+    for (let i = 0; i < 4; i++) {
+      sheet = [
+        ...sheet,
+        <div key={i} className="flex flex-1 flex-col">
+          {notes.flatMap(({ note }, j) => renderItem(note, j, i))}
+        </div>,
+      ];
+    }
+    return sheet;
+  };
+
+  return <div className="flex flex-1 flex-row">{renderSynthSheet()}</div>;
 }

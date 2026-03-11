@@ -28,7 +28,11 @@ export function Welcome() {
 
   const onClickPlayNotes = () => {
     const synth = new Tone.PolySynth(Tone.Synth).toDestination();
-    synth.triggerAttackRelease(playNotes, "8n");
+    const now = Tone.now();
+
+    playNotes.forEach((note, i) => {
+      synth.triggerAttackRelease(note, "8n", now + i * 0.5);
+    });
   };
 
   return (
@@ -39,7 +43,6 @@ export function Welcome() {
           notes={notes}
           playNotes={playNotes}
           setPlayNotes={setPlayNotes}
-          onClick={testClick}
         />
         <button
           className="ml-2 inline-flex items-center gap-2 bg-cyan-200 rounded-2xl cursor-pointer p-2"

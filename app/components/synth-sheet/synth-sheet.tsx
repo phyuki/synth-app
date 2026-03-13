@@ -45,7 +45,7 @@ export function SynthSheet({
       <button
         key={color + "-" + indexCol + "-" + indexRow}
         style={{ height: `${height}rem` }}
-        className={`w-32 ${height} ${color} border border-black ${activeColor}`}
+        className={`w-24 ${height} ${color} border border-black ${activeColor}`}
         onClick={() => onClickNote(note, indexCol)}
       />
     );
@@ -53,7 +53,7 @@ export function SynthSheet({
 
   const renderSynthSheet = () => {
     let sheet: any = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 8; i++) {
       sheet = [
         ...sheet,
         <div key={i} className="flex flex-1 flex-col">

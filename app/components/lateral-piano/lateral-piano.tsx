@@ -20,7 +20,7 @@ export function LateralPiano({ notes, onClick }: LateralPianoProps) {
       ))}
       {blackNotes.map(({ note }, i) => {
         const whiteIndex = whiteNotes.findIndex(
-          (item) => item.note[0] === note[0],
+          (item) => item.note === note[0] + note[2],
         );
         const top = whiteIndex * 3 - 1.5 / 2; // altura das brancas = 3rem | altura das pretas = 1.5rem
 

@@ -5,6 +5,18 @@ import { SynthSheet, LateralPiano } from "~/components";
 
 export function Welcome() {
   const notes = [
+    { note: "B5" },
+    { note: "A#5" },
+    { note: "A5" },
+    { note: "G#5" },
+    { note: "G5" },
+    { note: "F#5" },
+    { note: "F5" },
+    { note: "E5" },
+    { note: "D#5" },
+    { note: "D5" },
+    { note: "C#5" },
+    { note: "C5" },
     { note: "B4" },
     { note: "A#4" },
     { note: "A4" },
@@ -31,7 +43,7 @@ export function Welcome() {
     const now = Tone.now();
 
     playNotes.forEach((note, i) => {
-      synth.triggerAttackRelease(note, "8n", now + i * 0.5);
+      synth.triggerAttackRelease(note, "8n", now + i * 0.25);
     });
   };
 

@@ -1,26 +1,24 @@
-import type { NoteItem } from "~/types";
-
 type LateralPianoProps = {
-  notes: NoteItem[];
+  notes: string[];
   onClick: (note: string, sharp?: boolean) => void;
 };
 
 export function LateralPiano({ notes, onClick }: LateralPianoProps) {
-  const whiteNotes = notes.filter((item) => !item.note.includes("#"));
-  const blackNotes = notes.filter((item) => item.note.includes("#"));
+  const whiteNotes = notes.filter((item) => !item.includes("#"));
+  const blackNotes = notes.filter((item) => item.includes("#"));
 
   return (
     <div className="relative flex flex-col">
-      {whiteNotes.map(({ note }, i) => (
+      {whiteNotes.map((note, i) => (
         <button
           key={i}
           className="w-64 h-12 bg-white border border-black active:bg-gray-200"
           onClick={() => onClick(note)}
         />
       ))}
-      {blackNotes.map(({ note }, i) => {
+      {blackNotes.map((note, i) => {
         const whiteIndex = whiteNotes.findIndex(
-          (item) => item.note === note[0] + note[2],
+          (item) => item === note[0] + note[2],
         );
         const top = whiteIndex * 3 - 1.5 / 2; // altura das brancas = 3rem | altura das pretas = 1.5rem
 

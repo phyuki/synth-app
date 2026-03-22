@@ -2,68 +2,84 @@ import { PlayIcon } from "lucide-react";
 import { useState } from "react";
 import * as Tone from "tone";
 import { SynthSheet, LateralPiano } from "~/components";
+import { Button } from "~/components/ui/button";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarGroup,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "~/components/ui/menubar";
+import { notes } from "~/constants/notes";
+import type { NoteItem } from "~/types";
 
 export function Welcome() {
-  const notes = [
-    { note: "B5" },
-    { note: "A#5" },
-    { note: "A5" },
-    { note: "G#5" },
-    { note: "G5" },
-    { note: "F#5" },
-    { note: "F5" },
-    { note: "E5" },
-    { note: "D#5" },
-    { note: "D5" },
-    { note: "C#5" },
-    { note: "C5" },
-    { note: "B4" },
-    { note: "A#4" },
-    { note: "A4" },
-    { note: "G#4" },
-    { note: "G4" },
-    { note: "F#4" },
-    { note: "F4" },
-    { note: "E4" },
-    { note: "D#4" },
-    { note: "D4" },
-    { note: "C#4" },
-    { note: "C4" },
-  ];
-
-  const [playNotes, setPlayNotes] = useState([]);
+  const [playNotes, setPlayNotes] = useState<NoteItem[][]>([]);
 
   const testClick = (note: string) => {
+    const STEP = Tone.Time("8n").toSeconds();
+
     const synth = new Tone.Synth().toDestination();
-    synth.triggerAttackRelease(note, "8n");
+    synth.triggerAttackRelease(note, STEP);
   };
 
   const onClickPlayNotes = () => {
+    const STEP = Tone.Time("8n").toSeconds();
     const synth = new Tone.PolySynth(Tone.Synth).toDestination();
     const now = Tone.now();
 
-    playNotes.forEach((note, i) => {
-      synth.triggerAttackRelease(note, "8n", now + i * 0.25);
+    playNotes.forEach((notes, i) => {
+      notes?.forEach((item) => {
+        const duration = (item.length ?? 1) * STEP;
+        const startTime = now + i * STEP;
+        synth.triggerAttackRelease(item.note, duration, startTime);
+      });
     });
   };
 
   return (
-    <main className="flex flex-1 items-center bg-blue-950">
-      <div className="flex flex-row items-start">
-        <LateralPiano notes={notes} onClick={testClick} />
-        <SynthSheet
-          notes={notes}
-          playNotes={playNotes}
-          setPlayNotes={setPlayNotes}
-        />
-        <button
-          className="ml-2 inline-flex items-center gap-2 bg-cyan-200 rounded-2xl cursor-pointer p-2"
-          onClick={onClickPlayNotes}
-        >
-          <PlayIcon />
-          <p>Play</p>
-        </button>
-      </div>
-    </main>
+    <div className="flex flex-col flex-1">
+      <header>
+        <Menubar>
+          <MenubarMenu>
+            <MenubarTrigger>File</MenubarTrigger>
+            <MenubarContent>
+              <MenubarGroup>
+                <MenubarItem>
+                  New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+                </MenubarItem>
+                <MenubarItem>New Window</MenubarItem>
+              </MenubarGroup>
+              <MenubarSeparator />
+              <MenubarGroup>
+                <MenubarItem>Share</MenubarItem>
+                <MenubarItem>Print</MenubarItem>
+              </MenubarGroup>
+            </MenubarContent>
+          </MenubarMenu>
+          <Button
+            variant="ghost"
+            onClick={onClickPlayNotes}
+            className="flex gap-1"
+          >
+            <PlayIcon />
+            <p>Play</p>
+          </Button>
+        </Menubar>
+      </header>
+      <main className="flex flex-1 items-center bg-blue-950">
+        <div className="flex flex-row items-start">
+          <LateralPiano notes={notes} onClick={testClick} />
+          <SynthSheet
+            notes={notes}
+            playNotes={playNotes}
+            setPlayNotes={setPlayNotes}
+          />
+        </div>
+      </main>
+    </div>
   );
 }

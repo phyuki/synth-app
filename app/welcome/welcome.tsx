@@ -1,76 +1,89 @@
 import { PlayIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
-import { SynthSheet, LateralPiano } from "~/components";
+import { LateralPiano, SynthSheet } from "~/components";
 import { Button } from "~/components/ui/button";
+import { Menubar } from "~/components/ui/menubar";
 import {
-  Menubar,
-  MenubarContent,
-  MenubarGroup,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from "~/components/ui/menubar";
-import { notes } from "~/constants/notes";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { durationEnum, notes } from "~/constants";
 import type { NoteItem } from "~/types";
 
 export function Welcome() {
   const [playNotes, setPlayNotes] = useState<NoteItem[][]>([]);
+  const [duration, setDuration] = useState("8n");
 
-  const testClick = (note: string) => {
+  const samplerRef = useRef<Tone.Sampler | null>(null);
+
+  useEffect(() => {
+    samplerRef.current = new Tone.Sampler({
+      urls: {
+        C4: "C4.mp3",
+        "D#4": "Ds4.mp3",
+        "F#4": "Fs4.mp3",
+        A4: "A4.mp3",
+      },
+      release: 1,
+      baseUrl: "https://tonejs.github.io/audio/salamander/",
+    }).toDestination();
+  }, []);
+
+  const testClick = async (note: string) => {
     const STEP = Tone.Time("8n").toSeconds();
 
-    const synth = new Tone.Synth().toDestination();
-    synth.triggerAttackRelease(note, STEP);
+    await Tone.loaded();
+    samplerRef.current?.triggerAttackRelease(note, STEP);
   };
 
-  const onClickPlayNotes = () => {
-    const STEP = Tone.Time("8n").toSeconds();
-    const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+  const onClickPlayNotes = async () => {
+    const STEP = Tone.Time(duration ?? "8n").toSeconds();
     const now = Tone.now();
 
+    await Tone.loaded();
     playNotes.forEach((notes, i) => {
       notes?.forEach((item) => {
         const duration = (item.length ?? 1) * STEP;
         const startTime = now + i * STEP;
-        synth.triggerAttackRelease(item.note, duration, startTime);
+        samplerRef.current?.triggerAttackRelease(
+          item.note,
+          duration,
+          startTime,
+        );
       });
     });
   };
 
   return (
-    <div className="flex flex-col flex-1">
-      <header>
-        <Menubar>
-          <MenubarMenu>
-            <MenubarTrigger>File</MenubarTrigger>
-            <MenubarContent>
-              <MenubarGroup>
-                <MenubarItem>
-                  New Tab <MenubarShortcut>⌘T</MenubarShortcut>
-                </MenubarItem>
-                <MenubarItem>New Window</MenubarItem>
-              </MenubarGroup>
-              <MenubarSeparator />
-              <MenubarGroup>
-                <MenubarItem>Share</MenubarItem>
-                <MenubarItem>Print</MenubarItem>
-              </MenubarGroup>
-            </MenubarContent>
-          </MenubarMenu>
-          <Button
-            variant="ghost"
-            onClick={onClickPlayNotes}
-            className="flex gap-1"
-          >
-            <PlayIcon />
-            <p>Play</p>
-          </Button>
-        </Menubar>
+    <div className="flex flex-col flex-1 bg-blue-950">
+      <header className="flex flex-row gap-3 mt-3">
+        <Button
+          variant="ghost"
+          onClick={onClickPlayNotes}
+          className="flex gap-1 bg-white rounded-2xl"
+        >
+          <PlayIcon />
+          <p>Play</p>
+        </Button>
+        <Select onValueChange={setDuration} value={duration}>
+          <SelectTrigger className="w-full max-w-48 bg-white rounded-2xl">
+            <SelectValue placeholder="Select a tempo" />
+          </SelectTrigger>
+          <SelectContent>
+            {durationEnum.map((item, index) => (
+              <SelectItem
+                key={index}
+                value={item.value}
+              >{`${item.label} (${item.value})`}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </header>
-      <main className="flex flex-1 items-center bg-blue-950">
+      <main className="flex flex-1 flex-col items-start mt-3">
         <div className="flex flex-row items-start">
           <LateralPiano notes={notes} onClick={testClick} />
           <SynthSheet

@@ -73,7 +73,12 @@ export function Welcome() {
           <SelectTrigger className="w-full max-w-48 bg-white rounded-2xl">
             <SelectValue placeholder="Select a tempo" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent
+            className="rounded-2xl overflow-hidden"
+            position="popper"
+            side="bottom"
+            align="start"
+          >
             {durationEnum.map((item, index) => (
               <SelectItem
                 key={index}
